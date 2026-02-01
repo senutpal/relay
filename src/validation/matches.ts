@@ -11,15 +11,10 @@ export const listMatchesQuerySchema = z.object({
 });
 
 export const matchIdParamSchema = z.object({
-  id: z.coerce.number().int().positive(),
+  id: z.string().uuid(),
 });
 
-const isoDateString = z.string().refine((val) => {
-  const date = new Date(val);
-  return !isNaN(date.getTime());
-}, {
-  message: "Invalid ISO date string",
-});
+const isoDateString = z.string().datetime({ offset: true, message: "Invalid ISO date string" });
 
 export const createMatchSchema = z.object({
   sport: z.string().min(1),
