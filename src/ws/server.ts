@@ -19,6 +19,8 @@ function broadcast(wss: WebSocketServer, payload: object) {
   }
 }
 
+const alive = new WeakMap<WebSocket, boolean>();
+
 export function attachWebSocketServer(server: Server) {
   const wss = new WebSocketServer({
     server,
@@ -26,9 +28,33 @@ export function attachWebSocketServer(server: Server) {
     maxPayload: 1024 * 1024,
   });
 
-  wss.on("connection", (socket: WebSocket) => {
+  wss.on("connection", (socket) => {
+    alive.set(socket, true);
+
+    socket.on("pong", () => {
+      alive.set(socket, true);
+    });
+
     sendJson(socket, { type: "welcome" });
     socket.on("error", console.error);
+  });
+
+  const heartbeatInterval = setInterval(() => {
+    for (const socket of wss.clients) {
+      if (socket.readyState !== WebSocket.OPEN) continue;
+
+      if (alive.get(socket) === false) {
+        socket.terminate();
+        continue;
+      }
+
+      alive.set(socket, false);
+      socket.ping();
+    }
+  }, 30_000);
+
+  wss.on("close", () => {
+    clearInterval(heartbeatInterval);
   });
 
   function broadcastMatchCreated(match: Match) {
