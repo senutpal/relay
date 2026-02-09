@@ -37,7 +37,7 @@ function cleanupSubscriptions(socket: WebSocket) {
 function broadcastToMatch(matchId: string, payload: object) {
   const subscribers = matchSubscribers.get(matchId);
   if (!subscribers || subscribers.size === 0) return;
-  
+
   const message = JSON.stringify(payload);
   for (const client of subscribers) {
     if (client.readyState === WebSocket.OPEN) {
@@ -113,7 +113,7 @@ export function attachWebSocketServer(server: Server) {
     });
 
     sendJson(socket, { type: "welcome" });
-    
+
     socket.on('message', (data) => {
       handleMessage(socket,data);
     })
