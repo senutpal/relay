@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WebSocketMessage, SubscribeMessage } from '../types/api';
 
 interface UseWebSocketOptions {
@@ -16,7 +16,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
-  const connect = () => {
+  const optionsRef = useRef(options);
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
+  const connect = useCallback(function connect() {
     try {
       const wsUrl = `ws://localhost:3001/ws`;
       wsRef.current = new WebSocket(wsUrl);
@@ -24,14 +29,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       wsRef.current.onopen = () => {
         setIsConnected(true);
         reconnectAttempts.current = 0;
-        options.onConnect?.();
+        optionsRef.current.onConnect?.();
       };
 
       wsRef.current.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
           setLastMessage(message);
-          options.onMessage?.(message);
+          optionsRef.current.onMessage?.(message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
@@ -39,7 +44,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
       wsRef.current.onclose = () => {
         setIsConnected(false);
-        options.onDisconnect?.();
+        optionsRef.current.onDisconnect?.();
 
 
         if (reconnectAttempts.current < maxReconnectAttempts) {
@@ -53,14 +58,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
       wsRef.current.onerror = (error) => {
         console.error('WebSocket error:', error);
-        options.onError?.(error);
+        optionsRef.current.onError?.(error);
       };
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);
     }
-  };
+  }, []);
 
   const disconnect = () => {
+
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
@@ -94,7 +100,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     return () => {
       disconnect();
     };
-  }, []);
+  }, [connect]);
 
   return {
     isConnected,
