@@ -2,14 +2,11 @@ import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MatchList } from './components/MatchList';
 import { CommentaryFeed } from './components/CommentaryFeed';
-import { Card, CardContent } from './components/ui/card';
-import { Button } from './components/ui/button';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useCommentaryUpdater } from './hooks/useApiData';
-import type { Match } from './types/api';
-import { Trophy, ChevronLeft, Zap } from 'lucide-react';
+import type { Match, Commentary } from './types/api';
+import { ChevronLeft } from 'lucide-react';
 import { LiveIndicator } from './components/LiveIndicator';
-import { cn } from './lib/utils';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,11 +20,11 @@ const queryClient = new QueryClient({
 function AppContent() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const { isConnected, subscribe, unsubscribe } = useWebSocket({
-    onMessage: (message: any) => {
+    onMessage: (message: { type: string; data: Match | Commentary; matchId?: string }) => {
       if (message.type === 'match_created' && message.data) {
         updater.updateMatch(message.data as Match);
       } else if (message.type === 'commentary' && message.data) {
-        updater.addCommentary(message.matchId!, message.data as any);
+        updater.addCommentary(message.matchId!, message.data as Commentary);
       }
     },
   });
