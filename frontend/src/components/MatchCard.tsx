@@ -1,8 +1,6 @@
-import { Card, CardContent } from './ui/card';
 import { LiveIndicator } from './LiveIndicator';
 import type { Match } from '../types/api';
 import { cn } from '../lib/utils';
-import { Trophy, Clock } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
