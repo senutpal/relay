@@ -73,21 +73,6 @@ export function CommentaryFeed({ matchId }: CommentaryFeedProps) {
     return `${minute}'`;
   };
 
-  const getEventColor = (eventType: string) => {
-    switch (eventType.toLowerCase()) {
-      case 'goal':
-        return 'border-green-500';
-      case 'yellow_card':
-        return 'border-yellow-500';
-      case 'red_card':
-        return 'border-red-500';
-      case 'substitution':
-        return 'border-blue-500';
-      default:
-        return 'border-muted-foreground';
-    }
-  };
-
   return (
     <div
       ref={feedRef}
