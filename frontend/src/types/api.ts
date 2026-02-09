@@ -22,7 +22,7 @@ export interface Commentary {
   actor?: string;
   team?: string;
   message: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   tags?: string[];
   createdAt: string;
 }
@@ -33,7 +33,7 @@ export interface ApiResponse<T> {
 
 export interface ApiError {
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 
