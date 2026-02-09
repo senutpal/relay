@@ -39,8 +39,7 @@ setInterval(async () => {
 
         for (let i = 0; i < newEvents.length; i++) {
             const event = newEvents[i];
-
-
+            if (!event) continue;
 
             const delay = (2000 / newEvents.length) * i;
 
