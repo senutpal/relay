@@ -103,16 +103,12 @@ async function seedDatabase() {
 
         if (!dbMatch) return null;
 
-
-
-
-
         const start = new Date(dbMatch.startTime).getTime();
         const offsetSeconds = (comment.minute || 0) * 10;
         const createdAt = new Date(start + offsetSeconds * 1000);
 
         return {
-          matchId: matchId,
+          matchId: matchId as string,
           minute: comment.minute,
           sequence: comment.sequence,
           period: comment.period,
@@ -124,7 +120,7 @@ async function seedDatabase() {
           tags: comment.tags,
           createdAt: createdAt,
         };
-      }).filter((c: any) => c !== null && typeof c.matchId === 'string');
+      }).filter((c): c is NonNullable<typeof c> => c !== null && typeof c.matchId === 'string');
 
       if (commentaryValues.length > 0) {
 
